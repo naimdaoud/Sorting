@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -56,18 +58,6 @@ void swaps(string* x, string* y) {
     tmp = *x; *x = *y; *y = tmp;
 }
 
-int median3(string* a, int lo, int hi) {
-    int center = (lo + hi) / 2;
-
-    if (a[lo] > a[center]) swaps(&a[lo], &a[center]);
-
-    if (a[lo] > a[hi]) swaps(&a[lo], &a[hi]);
-
-    if (a[center] > a[hi]) swaps(&a[center], &a[hi]);
-
-    return center;
-}
-
 int partition(string* a, int lo, int hi) {
     int i = lo, j = hi + 1;
         string pivot = a[lo];
@@ -89,20 +79,13 @@ int partition(string* a, int lo, int hi) {
     return j;
 }
 
-void quickSort(string* a, int lo, int hi) { // question 5.3.a.
+void quickSort1(string* a, int lo, int hi) { // question 5.3.a.
 
-    int median = median3(a, lo, hi);
-    swaps(&a[lo], &a[median]);
-
-    //if (hi <= lo + 10 - 1) {//cutoff=10
-    //    insertionSort(a, hi - lo + 1);
-    //    return;
-    //}
+    if (hi <= lo) return;
 
     int j = partition(a, lo, hi);
-    quickSort(a, lo, j - 1);
-    quickSort(a, j + 1, hi);
-    //display(a, hi + lo + 1);
+    quickSort1(a, lo, j - 1);
+    quickSort1(a, j + 1, hi);
 }
 
 void displays(string* a, int N) {
@@ -110,6 +93,26 @@ void displays(string* a, int N) {
         cout << a[i] << " ";
     }
     cout << endl;
+}
+
+void lsd_string_radix(string* a, int N, int max_chars){ // question 5.3.b. Running time is N*max_chars.
+    string* temp = new string[N];
+
+    for (int i = max_chars - 1; i >= 0; i--){
+        int count[27] = { 0 };
+
+        for (int j = 0; j < N; j++)
+            count[static_cast<int>(a[j][i]) - 96]++;
+
+        for (int j = 2; j < 26; j++)
+            count[j] += count[j - 1];
+
+        for (int j = 0; j < N; j++)
+            temp[count[static_cast<int>(a[j][i]) - 97]++] = a[j];
+
+        for (int j = 0; j < N; j++)
+            a[j] = temp[j];
+    }
 }
 
 int main()
@@ -130,6 +133,10 @@ int main()
 
     n = 6;
     string str[] = {"cab", "bcd", "axz", "zwy", "mpo", "dcv"};
-    quickSort(str, 0, n-1);
+    quickSort1(str, 0, n-1);
     displays(str,n);
+
+    string str2[] = { "cab", "bcd", "axz", "zwy", "mpo", "dcv" };
+    lsd_string_radix(str2, n, 3);
+    displays(str2, n);
 }
